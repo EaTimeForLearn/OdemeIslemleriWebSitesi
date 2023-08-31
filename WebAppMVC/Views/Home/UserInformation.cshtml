@@ -1,0 +1,78 @@
+﻿@section Scripts {
+    <script>
+        $("#txtCountry").hide();
+        $("#cbForeign").change((e) => {
+            console.log(e);
+            if (e.target.checked) {
+                $("#txtCountry").show();
+            }
+            else {
+                $("#txtCountry").hide();
+            }
+        });
+    </script>
+
+}
+
+
+    <div class="container">
+        <form>
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <label for="txtName" class="form-label">Ad:</label>
+                    <input type="text" class="form-control" id="txtName">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="txtSurName" class="form-label">Soyad:</label>
+                    <input type="text" class="form-control" id="txtSurName">
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <label for="txtGSM" class="form-label">Telefon</label>
+                    <input type="tel" class="form-control" id="txtGSM">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="txtEmail" class="form-label">Eposta Adresi:</label>
+                    <input type="email" class="form-control" id="txtEmail">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <label for="txtAddress" class="form-label">Adres:</label>
+                    <input type="email" class="form-control" id="txtAddress">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <label for="txtDistrict" class="form-label">İlçe</label>
+                    <input type="text" class="form-control" id="txtDistrict">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="txtCity" class="form-label">İl</label>
+                    <input type="text" class="form-control" id="txtCity">
+                </div>
+            </div>
+            @* <div class="row">
+        <div class="col-12 col-md-6">
+        <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="cbForeign">
+        <label class="form-check-label" for="cbForeign">Yurt dışı</label>
+        </div>
+        </div>
+        <div class="col-12 col-md-6">
+        <label for="txtCountry" class="form-label">Ülke</label>
+        <input type="text" class="form-control" id="txtCountry">
+        </div>
+        </div>*@
+
+            <div class="btnContainer">
+                <button type="button" onclick="window.location.href='/Home/Index';" class="btn btn-sm btn-primary" style="width:100px;    border-radius: 10px;">Geri</button>
+                <button type="button" onclick="window.location.href='/Home/Payment';" class="btn btn-sm btn-primary" style="width:100px;    border-radius: 10px;">İleri</button>
+            </div>
+        </form>
+    </div>

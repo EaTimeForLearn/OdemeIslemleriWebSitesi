@@ -1,0 +1,31 @@
+﻿.container1 {
+    height: 90%;
+    width: 50%;
+    background-color: #fff;
+    padding: 25px 80px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgb(0 0 0 / 15%);
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+
+
+}
+
+.container1 .title {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 500;
+    position: relative;
+}
+
+.container1 .title::before {
+    content: "";
+    position: absolute;
+    top: 30px;
+    height: 3px;
+    width: 50px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #000, #fff);
+}

@@ -1,0 +1,253 @@
+﻿@using Entities.Dtos
+@model List<MusteriDto>
+
+
+@section Scripts{
+    <script>
+        $(document).ready(() => {
+            var isExpanded = false;
+            $('#accordion').on('shown.bs.collapse', function () {
+                isExpanded = true;
+                LoadInstalments();
+            });
+
+            $('#accordion').on('hidden.bs.collapse', function () {
+                isExpanded = false;
+            });
+
+
+
+            function LoadInstalments() {
+                if (isExpanded) {
+                    let totalPrice = 0;
+                    $(".linePrice").each((e, t) => {
+                        totalPrice += Number($(t).val());
+                    });
+                    if ($.fn.dataTable.isDataTable('#installmentsTable')) {
+                        $('#installmentsTable').DataTable().ajax.url('@Url.Action("installments", "home")/' + totalPrice).load();
+
+                    } else {
+                        $('#installmentsTable').DataTable({
+                            processing: true,
+                            paging: false,
+                            searching: false,
+                            ordering: false,
+                            info: false,
+                            ajax:
+                            {
+                                url: '@Url.Action("installments", "home")/' + totalPrice,
+                                dataSrc: function (data) {
+                                    if (typeof data[Symbol.iterator] === 'function') {
+                                        setTimeout(() => {
+                                            for (let row of data) {
+                                                for (let i = 2; i < row.length; i++) {
+                                                    if (row[i].indexOf(" = " + row[1]) > -1) {
+                                                        $('#installmentsTable td').each(function () {
+                                                            if ($(this).html() == row[i]) {
+                                                                $(this).css({ "border": "#198754 solid 2px", "padding": "4px", "border-radius": "9px" })
+                                                                $(this).html("<span class='position-relative'><strong>" + $(this).html() + "</strong><span class='position-absolute start-100 translate-middle badge rounded-pill bg-success' style='top:-5px'>En Uygun</span></span>")
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }, 1000);
+                                    }
+                                    return data;
+                                }
+                            },
+                            language: {
+                                url: 'dataTable_tr.json'
+                            }
+                        });
+                    }
+
+                    $.each($.fn.dataTable.tables(true), function () {
+                        $(this).DataTable()
+                            .columns.adjust()
+                            .responsive.recalc();
+                    });
+                }
+            }
+
+            $("select").change((e) => {
+                $("#Fiyat_" + e.target.getAttribute("index")).val(e.target[e.target.selectedIndex].getAttribute("value"));
+                let totalPrice = 0;
+                $(".linePrice").each((e, t) => {
+                    totalPrice += Number($(t).val());
+                });
+                $("#totalPrice").val(totalPrice);
+                $("#priceInfo").text(("Ödenecek Tutar =  ") + totalPrice + (" TL"));
+
+                if (e.target[e.target.selectedIndex].getAttribute("value") == 0)
+                    $("#yeniBitisTarihi_" + e.target.getAttribute("index")).text("");
+                else
+                    $("#yeniBitisTarihi_" + e.target.getAttribute("index")).text(e.target[e.target.selectedIndex].getAttribute("new-date"));
+
+                LoadInstalments();
+            });
+        });
+
+
+
+    </script>
+    }
+    <div>
+        <div class="container">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Bayi</th>
+                        <th scope="col">Kullanıcı Adı</th>
+                        <th scope="col">Bitiş Tarihi</th>
+                        <th scope="col">Uzatılacak Süre</th>
+                        <th scope="col">Yeni Bitiş Tarihi</th>
+                        <th scope="col">Tutar</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+                    int i = 0;
+                    foreach (var item in @Model)
+                    {
+                        <tr>
+                            <th scope="row">@(i + 1)</th>
+                            <td>@item.Bayiler</td>
+                            <td>@item.OperatorAdi</td>
+                            <td>
+                                <label id="bitisTarihi_@i.ToString()">@item.KiraBitisTarihi.ToShortDateString()</label>
+                            </td>
+                            <td>
+
+                                <select index="@i" name="productinfo" class="form-control">
+                                    <option selected="selected" value="0">Süreyi Seçiniz</option>
+                                    @foreach (var price in item.Fiyatlar)
+                                    {
+                                        <option value="@price.Fiyat" new-date="@item.KiraBitisTarihi.AddMonths(@price.EklenecekAy).ToShortDateString()">@price.Tanim</option>
+                                    }
+                                    <!-- <option value="item" data-price[i]="">Entities.Dtos.MusteriDto</option>-->
+                                </select>
+                            </td>
+
+                            <!-- <td><input type="text" name="amount" class="" id="NewTime_@i.ToString()" style="width:150px; " value="@item.KiraBitisTarihi" readonly=""></td> -->
+
+
+                            <td> <label id="yeniBitisTarihi_@i.ToString()"></label></td>
+
+
+                            <td><input type="text" name="amount" class="form-control linePrice" id="Fiyat_@i.ToString()" style="text-align: end;" value="0" readonly></td>
+                        </tr>
+                        i = i + 1;
+                    }
+                }
+
+                <tr>
+                    <th scope="row"></th>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><label style="text-align:end;"><strong>Toplam Tutar:</strong></label></td>
+                    <td><input type="text" name="amount" id="totalPrice" class="form-control" style="text-align: end;" value="0" readonly></td>
+
+                </tr>
+
+            </tbody>
+        </table>
+        <div style="display:flex; justify-content:end">
+            <button type="button" class="btn btn-primary btn-lg" style="width:150px" data-toggle="modal" data-target="#exampleModal">
+                İleri
+            </button>
+            <!--<button type="button" class="btn btn-primary btn-lg" style="width:150px" data-toggle="modal" data-target="#exampleModal" onclick="location.href='@Url.Action("userinformation", "home")'">
+                İleri
+            </button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                Launch demo modal
+            </button>-->
+        </div>
+    </div>
+
+    <div class="accordion mt-4" id="accordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <strong>Taksit Seçenekleri</strong>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion" style="">
+                <div class="accordion-body">
+                    <div class="container">
+                        <table id="installmentsTable" class="display compact" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Tek Çekim</th>
+                                    <th>2 Taksit</th>
+                                    <th>3 Taksit</th>
+                                    <th>6 Taksit</th>
+                                    <th>9 Taksit</th>
+                                    <th>12 Taksit</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="alert alert-info mt-3">
+                            Talep ettiğiniz taksit seçeneğini ödeme adımında seçeceksiniz.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- -->
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="margin-top: 70%;margin-bottom: 70%;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Bilgilendirme</h5>
+
+                </div>
+                <div class="modal-body">
+                    <h4>  Yeni ödeme bitim tarihiniz:</h4>
+
+                    @foreach (var item in @Model)
+                    {
+                        <p id="Info">@item.OperatorAdi    =   @item.KiraBitisTarihi</p>
+                    }
+                    <label id="priceInfo"> </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-primary" onclick="window.location.href='/Home/UserInformation';">Onayla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
